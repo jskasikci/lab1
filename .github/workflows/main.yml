@@ -10,24 +10,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2
 
-    - name: Build Docker image
+    - name: Set up Docker Compose
       run: |
-        docker build . -t $REPO_NAME/$IMAGE_NAME
+        sudo apt-get update
+        sudo apt-get install docker-compose
 
-    - name: Run MongoDB container
+    - name: Build and run Docker Compose
       run: |
-        docker run -d --name mongodb -p 27017:27017 mongo:latest
-        sleep 30  # Wait for MongoDB to be fully ready
-
-    - name: Run Student Service container
-      run: |
-        docker run -d --name student_service -p 8080:8080 --link mongodb:mongodb \
-          $REPO_NAME/$IMAGE_NAME:latest
-        sleep 30  # Give student service time to start
-
-    - name: View Docker container logs
-      run: |
-        docker logs student_service
+        docker-compose up --build -d
+        sleep 30
 
     - name: "Check files existence"
       uses: andstor/file-existence-action@v2
@@ -43,7 +34,6 @@ jobs:
         environment: postman/environment.json
         reporters: cli
         bail: true
-        wait-for: "http://localhost:8080" # Ensure the service is reachable
 
     - name: Check if we failed
       id: fail-check
