@@ -10,21 +10,22 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build docker
+      - name: Install Docker Compose
         run: |
-          docker build . -t $REPO_NAME/$IMAGE_NAME
+          curl -L https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+          chmod +x /usr/local/bin/docker-compose
 
-      - name: Run MongoDB
+      - name: Build Docker images with Compose
         run: |
-          docker run -d -p 27017:27017 --name mongodb mongo
+          docker-compose build
 
-      - name: Run student service
+      - name: Start services with Docker Compose
         run: |
-          docker run -d -p 8080:8080 --link mongodb --name student_service $REPO_NAME/$IMAGE_NAME:latest
+          docker-compose up -d
 
       - name: View application logs
         run: |
-          docker logs student_service
+          docker-compose logs student_service
 
       - name: Wait for MongoDB to be ready
         run: |
@@ -67,10 +68,7 @@ jobs:
 
       - name: Clean up Docker containers
         run: |
-          docker stop mongodb
-          docker rm mongodb
-          docker stop student_service
-          docker rm student_service
+          docker-compose down
 
       - name: Login to Container Registry
         uses: docker/login-action@v1
@@ -81,4 +79,3 @@ jobs:
       - name: Push image to Docker Hub
         run: |
           docker push $REPO_NAME/$IMAGE_NAME
-
