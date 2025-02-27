@@ -22,10 +22,20 @@ jobs:
         run: |
           docker run -d -p 8080:8080 --link mongodb --name student_service $REPO_NAME/$IMAGE_NAME:latest
 
+      - name: View application logs
+        run: |
+          docker logs student_service
+
       - name: Wait for MongoDB to be ready
         run: |
           for i in {1..30}; do
             nc -z localhost 27017 && break || sleep 3;
+          done
+
+      - name: Wait for application to be ready
+        run: |
+          for i in {1..30}; do
+            nc -z localhost 8080 && break || sleep 3;
           done
 
       - name: Run API Tests
@@ -71,3 +81,4 @@ jobs:
       - name: Push image to Docker Hub
         run: |
           docker push $REPO_NAME/$IMAGE_NAME
+
