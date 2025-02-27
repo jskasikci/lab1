@@ -14,11 +14,16 @@ jobs:
       run: |
         docker build . -t $REPO_NAME/$IMAGE_NAME
 
-    - name: Run Docker container
+    - name: Run MongoDB container
+      run: |
+        docker run -d --name mongodb -p 27017:27017 mongo:latest
+        sleep 30  # Give MongoDB time to start up
+
+    - name: Run Student Service container
       run: |
         docker run -d --name student_service -p 8080:8080 --link mongodb:mongodb \
           $REPO_NAME/$IMAGE_NAME:latest
-        sleep 30
+        sleep 30  # Give student service time to start
 
     - name: View Docker container logs
       run: |
