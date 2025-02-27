@@ -1,23 +1,17 @@
-version: '3.8'
-
+version: '3'
 services:
   student_service:
-    build: .
-    container_name: student_service
-    ports:
-      - "8080:8080"
+    image: student_service
+    restart: unless-stopped
     depends_on:
       - mongo
     environment:
-      MONGO_URI: mongodb://mongo:27017/school
+      MONGO_URI: mongodb://mongo:27017
+    ports:
+      - "8080:8080"
 
   mongo:
-    image: mongo:latest
-    container_name: mongodb
+    restart: unless-stopped
+    image: mongo:4
     ports:
       - "27017:27017"
-    volumes:
-      - mongo_data:/data/db
-
-volumes:
-  mongo_data:
