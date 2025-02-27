@@ -24,7 +24,7 @@ jobs:
     - name: Run docker-compose
       run: |
         docker-compose up -d
-        sleep 10
+        sleep 30
 
     - name: "Check files existence"
       uses: andstor/file-existence-action@v2
