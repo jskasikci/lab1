@@ -1,23 +1,28 @@
-name: Build Test and push
+name: Build Test and Push
 on: [push]
 env:
   IMAGE_NAME: student_service
-  REPO_NAME:
-
+  REPO_NAME: jkasikci/student_service
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Build docker
+
+    - name: Build Docker image
       run: |
         docker build . -t $REPO_NAME/$IMAGE_NAME
-    - name: run docker
-      run: |
-        docker run -d -p 8080:8080 $REPO_NAME/$IMAGE_NAME:latest && \
-          docker ps && sleep 5
 
+    - name: Run Docker container
+      run: |
+        docker run -d --name student_service -p 8080:8080 --link mongodb:mongodb \
+          $REPO_NAME/$IMAGE_NAME:latest
+        sleep 30
+
+    - name: View Docker container logs
+      run: |
+        docker logs student_service
 
     - name: "Check files existence"
       uses: andstor/file-existence-action@v2
@@ -48,7 +53,7 @@ jobs:
           echo "failed=true" >> $GITHUB_OUTPUT;
         fi
 
-    - name: fail if empty
+    - name: Fail if tests failed
       if: ${{ steps.fail-check.outputs.failed == 'true' }}
       run: exit 1
 
@@ -58,6 +63,6 @@ jobs:
         username: ${{ secrets.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
-    - name: Push image to docker hub Container Registry
+    - name: Push image to Docker Hub
       run: | 
-          docker push $REPO_NAME/$IMAGE_NAME
+        docker push $REPO_NAME/$IMAGE_NAME
