@@ -17,7 +17,7 @@ jobs:
     - name: Run MongoDB container
       run: |
         docker run -d --name mongodb -p 27017:27017 mongo:latest
-        sleep 30  # Give MongoDB time to start up
+        sleep 30  # Wait for MongoDB to be fully ready
 
     - name: Run Student Service container
       run: |
@@ -43,6 +43,7 @@ jobs:
         environment: postman/environment.json
         reporters: cli
         bail: true
+        wait-for: "http://localhost:8080" # Ensure the service is reachable
 
     - name: Check if we failed
       id: fail-check
