@@ -15,3 +15,9 @@ services:
     image: mongo:4
     ports:
       - "27017:27017"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "mongodb://localhost:27017"]
+      interval: 10s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
