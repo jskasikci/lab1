@@ -1,7 +1,8 @@
 version: '3'
 services:
   student_service:
-    image: student_service
+    image: jkasikci/student_service:latest
+    build: .
     restart: unless-stopped
     depends_on:
       - mongo

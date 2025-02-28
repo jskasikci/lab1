@@ -2,7 +2,7 @@ name: Build Test and Push
 on: [push]
 env:
   IMAGE_NAME: student_service
-  REPO_NAME: jkasikci
+  REPO_NAME: jkasikci/student_service
 
 jobs:
   build:
