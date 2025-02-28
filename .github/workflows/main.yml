@@ -10,21 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Build docker
-        run: |
-          docker build . -t $REPO_NAME/$IMAGE_NAME
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
 
-      - name: Run MongoDB
+      - name: Build docker image
         run: |
-          docker run -d -p 27017:27017 --name mongodb mongo
+          docker buildx build . -t $REPO_NAME/$IMAGE_NAME --push
 
-      - name: Run student service
+      - name: Set up Docker Compose
         run: |
-          docker run -d -p 8080:8080 --link mongodb --name student_service $REPO_NAME/$IMAGE_NAME:latest
+          docker-compose -v
 
-      - name: View application logs
+      - name: Start services with Docker Compose
         run: |
-          docker logs student_service
+          docker-compose up -d
 
       - name: Wait for MongoDB to be ready
         run: |
@@ -67,10 +66,7 @@ jobs:
 
       - name: Clean up Docker containers
         run: |
-          docker stop mongodb
-          docker rm mongodb
-          docker stop student_service
-          docker rm student_service
+          docker-compose down
 
       - name: Login to Container Registry
         uses: docker/login-action@v1
@@ -81,4 +77,3 @@ jobs:
       - name: Push image to Docker Hub
         run: |
           docker push $REPO_NAME/$IMAGE_NAME
-
